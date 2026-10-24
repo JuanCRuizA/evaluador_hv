@@ -1,0 +1,16 @@
+insumos/hojas_de_vida/
+insumos/boceto_app.png
+.env
+.env.*
+.venv
+.git
+__pycache__
+.pytest_cache
+tests/
+.claude/
+CLAUDE.md
+README.md
+resumen_para_claude_chat.md
+compose.yaml
+Dockerfile
+.dockerignore

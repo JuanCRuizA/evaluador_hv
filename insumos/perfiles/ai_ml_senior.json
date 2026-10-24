@@ -1,0 +1,62 @@
+{
+  "codigo": "ML-SR-2026",
+  "cargo": "AI/ML Engineer Senior (arquitectura de soluciones de IA)",
+  "empresa": "Sun Valley Investments S.A.S.",
+  "mision": "Liderar la arquitectura técnica de las iniciativas de IA: seleccionar tecnologías, definir patrones de solución y estándares del equipo, alineados con el negocio y la estrategia de escala.",
+  "obligatorios": [
+    {
+      "codigo": "O1",
+      "descripcion": "Al menos 5 años de experiencia en TI."
+    },
+    {
+      "codigo": "O2",
+      "descripcion": "Al menos 2 años tomando decisiones de arquitectura en proyectos con IA o datos."
+    },
+    {
+      "codigo": "O3",
+      "descripcion": "Conocimiento del ecosistema LLM (OpenAI, Azure OpenAI, Anthropic u open-source) y de RAG o agentes."
+    },
+    {
+      "codigo": "O4",
+      "descripcion": "Microsoft Azure (AI Studio, Azure ML, Functions o AKS)."
+    }
+  ],
+  "deseables": [
+    {
+      "codigo": "D1",
+      "descripcion": "Diseño de pipelines de datos y bases de datos vectoriales.",
+      "puntos": 20
+    },
+    {
+      "codigo": "D2",
+      "descripcion": "MLOps: CI/CD para IA y monitoreo de modelos en producción.",
+      "puntos": 20
+    },
+    {
+      "codigo": "D3",
+      "descripcion": "Liderazgo técnico de equipos (guiar, revisar, definir estándares).",
+      "puntos": 20
+    },
+    {
+      "codigo": "D4",
+      "descripcion": "Integraciones empresariales (ERP, SCADA/TO, APIs industriales).",
+      "puntos": 20
+    },
+    {
+      "codigo": "D5",
+      "descripcion": "Experiencia en sectores industriales o minería.",
+      "puntos": 20
+    }
+  ],
+  "prohibidos": [
+    "edad o fecha de nacimiento",
+    "sexo o género",
+    "estado civil",
+    "hijos",
+    "fotografía",
+    "número de documento",
+    "religión",
+    "origen o lugar de residencia",
+    "universidad de procedencia"
+  ]
+}

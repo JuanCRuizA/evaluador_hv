@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <title>{% block titulo %}{% endblock %} · Evaluador HV</title>
+  <style>
+    :root {
+      --crema: #faf5e9;
+      --crema-oscuro: #f1e8d0;
+      --dorado: #b8892b;
+      --dorado-oscuro: #8a6416;
+      --texto: #3a3122;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--crema);
+      color: var(--texto);
+      font-family: Georgia, "Times New Roman", serif;
+      line-height: 1.6;
+    }
+    header {
+      background: var(--crema-oscuro);
+      border-bottom: 3px solid var(--dorado);
+      padding: 1rem 2rem;
+    }
+    header a {
+      color: var(--dorado-oscuro);
+      font-weight: bold;
+      font-size: 1.2rem;
+      text-decoration: none;
+      letter-spacing: .05em;
+    }
+    main { max-width: 960px; margin: 2rem auto; padding: 0 1.5rem; }
+    h1 { color: var(--dorado-oscuro); border-bottom: 1px solid var(--dorado); padding-bottom: .4rem; }
+    .btn {
+      display: inline-block;
+      background: var(--dorado);
+      color: #fff;
+      padding: .5rem 1.2rem;
+      border: 0;
+      border-radius: 4px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .btn:hover { background: var(--dorado-oscuro); }
+    header { display: flex; justify-content: space-between; align-items: center; }
+    header .salir { font-size: .95rem; font-weight: normal; }
+    select, input[type=password] {
+      font: inherit; padding: .4rem .6rem; background: #fffdf5;
+      border: 1px solid var(--dorado); border-radius: 4px; color: var(--texto);
+    }
+    .contadores { display: flex; gap: .8rem; flex-wrap: wrap; margin: 1.2rem 0; }
+    .contador {
+      background: var(--crema-oscuro); border: 1px solid var(--dorado);
+      border-radius: 6px; padding: .5rem 1rem; text-align: center;
+    }
+    .contador strong { display: block; font-size: 1.6rem; color: var(--dorado-oscuro); }
+    .tarjeta {
+      background: #fffdf5; border: 1px solid var(--dorado); border-radius: 6px;
+      padding: 1.5rem; max-width: 380px;
+    }
+    .tarjeta label, .tarjeta input { display: block; width: 100%; margin-bottom: .8rem; }
+    .error { color: #9a3b2a; font-weight: bold; }
+    .ok { color: #3f6b2a; }
+    .acciones { margin: 1rem 0; }
+    table { border-collapse: collapse; width: 100%; background: #fffdf5; }
+    th, td { border: 1px solid #d9c79a; padding: .4rem .7rem; text-align: left; }
+    th { background: var(--crema-oscuro); }
+    table a { color: var(--texto); }
+    .zona {
+      display: block;
+      border: 2px dashed var(--dorado); border-radius: 8px; padding: 2.5rem 1rem;
+      text-align: center; color: var(--dorado-oscuro); background: #fffdf5; cursor: pointer;
+    }
+    .zona.sobre { background: var(--crema-oscuro); }
+    .zona small { display: block; }
+    .nota { background: #fff0c2; border: 1px solid var(--dorado); border-radius: 6px; padding: .3rem .8rem; font-size: .9rem; margin-top: 1rem; }
+    .resultado { list-style: none; padding: 0; }
+    main.ancho { max-width: 1400px; }
+    .detalle { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 1.5rem; }
+    .detalle iframe { width: 100%; height: 80vh; min-height: 420px; border: 1px solid #d9c79a; background: #fff; }
+    .detalle h2 { font-size: .95rem; letter-spacing: .08em; text-transform: uppercase; color: var(--dorado-oscuro); }
+    .meta { font-size: .9rem; color: #6b5d40; }
+    .alertas { color: #9a3b2a; font-weight: bold; }
+    .aviso { background: #e6f0d8; border: 1px solid #3f6b2a; border-radius: 6px; padding: .4rem .8rem; margin: 1rem 0; }
+    .opciones label { display: inline-block; margin-right: 1rem; padding: .3rem .8rem; border: 1px solid var(--dorado); border-radius: 4px; background: #fffdf5; cursor: pointer; }
+    .demo { background: #fff0c2; color: var(--dorado-oscuro); border-bottom: 1px solid var(--dorado); padding: .4rem 2rem; font-size: .9rem; text-align: center; }
+    textarea { font: inherit; width: 100%; min-height: 6rem; margin: .6rem 0; padding: .5rem; background: #fffdf5; border: 1px solid var(--dorado); border-radius: 4px; color: var(--texto); }
+    @media (max-width: 800px) { .detalle { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="/">Evaluador HV</a>
+    {% if session.get("autenticado") %}<a class="salir" href="{{ url_for('auth.logout') }}">Salir</a>{% endif %}
+  </header>
+  {% if config.get("BD_EN_MEMORIA_ACTIVA") %}<div class="demo">Modo demostración: los datos se guardan en memoria y se pierden al reiniciar. No cargue hojas de vida reales que necesite conservar.</div>{% endif %}
+  <main class="{% block clase_main %}{% endblock %}">
+    {% for mensaje in get_flashed_messages() %}<div class="aviso">{{ mensaje }}</div>{% endfor %}
+    {% block contenido %}{% endblock %}
+  </main>
+</body>
+</html>

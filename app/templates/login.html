@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block titulo %}Ingresar{% endblock %}
+{% block contenido %}
+<h1>Ingresar</h1>
+<form method="post" class="tarjeta">
+  <input type="hidden" name="next" value="{{ siguiente }}">
+  <label for="password">Contraseña</label>
+  <input type="password" id="password" name="password" required autofocus>
+  {% if error %}<p class="error">{{ error }}</p>{% endif %}
+  <button type="submit" class="btn">Entrar</button>
+</form>
+{% endblock %}

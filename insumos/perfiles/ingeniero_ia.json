@@ -1,0 +1,62 @@
+{
+  "codigo": "ING-IA-2026",
+  "cargo": "Ingeniero/a de Inteligencia Artificial (desarrollo e implementación)",
+  "empresa": "Sun Valley Investments S.A.S.",
+  "mision": "Desarrollar e implementar soluciones de IA end-to-end, desde el entendimiento del problema hasta el despliegue en producción y monitoreo, dentro de arquitecturas ya definidas.",
+  "obligatorios": [
+    {
+      "codigo": "O1",
+      "descripcion": "Python para desarrollo de software (no solo cursos)."
+    },
+    {
+      "codigo": "O2",
+      "descripcion": "SQL (consultas y manejo de bases de datos relacionales)."
+    },
+    {
+      "codigo": "O3",
+      "descripcion": "Experiencia práctica con LLMs / IA generativa: LangChain, LangGraph, agentes, RAG o APIs de OpenAI / Azure OpenAI / Anthropic."
+    },
+    {
+      "codigo": "O4",
+      "descripcion": "Al menos 2 años de experiencia laboral en desarrollo de software o soluciones de IA/ML."
+    }
+  ],
+  "deseables": [
+    {
+      "codigo": "D1",
+      "descripcion": "Bases de datos vectoriales o RAG (pgvector, Pinecone, Chroma, FAISS, Azure AI Search, embeddings).",
+      "puntos": 20
+    },
+    {
+      "codigo": "D2",
+      "descripcion": "Microsoft Azure (despliegue o servicios de Azure).",
+      "puntos": 20
+    },
+    {
+      "codigo": "D3",
+      "descripcion": "Docker y/o pipelines de CI/CD.",
+      "puntos": 20
+    },
+    {
+      "codigo": "D4",
+      "descripcion": "Evaluación y calidad de IA: AI Evals, RAGAS, métricas de LLM o mitigación de alucinaciones.",
+      "puntos": 20
+    },
+    {
+      "codigo": "D5",
+      "descripcion": "Machine Learning clásico (scikit-learn, modelos supervisados, XGBoost, etc.).",
+      "puntos": 20
+    }
+  ],
+  "prohibidos": [
+    "edad o fecha de nacimiento",
+    "sexo o género",
+    "estado civil",
+    "hijos",
+    "fotografía",
+    "número de documento",
+    "religión",
+    "origen o lugar de residencia",
+    "universidad de procedencia"
+  ]
+}

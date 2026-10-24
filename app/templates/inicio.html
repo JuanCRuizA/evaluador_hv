@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block titulo %}Inicio{% endblock %}
+{% block contenido %}
+<h1>Evaluador de hojas de vida</h1>
+{% if vacante %}
+<form method="get">
+  <label for="vacante">Vacante:</label>
+  <select id="vacante" name="vacante" onchange="this.form.submit()">
+    {% for v in vacantes %}
+    <option value="{{ v.id }}" {{ "selected" if v.id == vacante.id }}>{{ v.cargo }} ({{ v.codigo }})</option>
+    {% endfor %}
+  </select>
+  <noscript><button type="submit" class="btn">Ver</button></noscript>
+</form>
+<div class="contadores">
+  <div class="contador"><strong>{{ conteos.cargadas }}</strong> cargadas</div>
+  <div class="contador"><strong>{{ conteos.pendientes }}</strong> pendientes</div>
+  {% if conteos.evaluando %}<div class="contador"><strong>{{ conteos.evaluando }}</strong> evaluando…</div>{% endif %}
+  <div class="contador"><strong>{{ conteos.evaluadas }}</strong> evaluadas</div>
+  <div class="contador"><strong>{{ rk.avanzan }}</strong> avanzan</div>
+  <div class="contador"><strong>{{ rk.con_alertas }}</strong> con alertas</div>
+</div>
+<div class="acciones">
+  <a class="btn" href="{{ url_for('main.cargar', vacante=vacante.id) }}">+ Cargar hojas de vida</a>
+  <button id="evaluar" type="button" class="btn" {{ "disabled" if not rk.pendientes_ids }}>▶ Evaluar pendientes</button>
+  <span id="progreso"></span>
+</div>
+<ul id="errores" class="resultado"></ul>
+{% if rk.filas %}
+<table>
+  <thead><tr><th>#</th><th>Candidato</th><th>Avanza</th><th>Puntaje</th><th>No cumple</th><th>Alertas</th><th>Decisión</th></tr></thead>
+  <tbody>
+    {% for c in rk.filas %}
+    <tr>
+      <td>{{ c.posicion if c.posicion else "—" }}</td>
+      <td><a href="{{ url_for('main.detalle', candidato_id=c.id) }}">{{ c.nombre }}</a></td>
+      {% if c.estado == "evaluado" %}
+      <td>{% if c.avanza %}<span class="ok"><strong>Sí</strong></span>{% else %}<span class="error">No</span>{% endif %}</td>
+      <td>{{ c.puntaje }}</td>
+      <td>{{ c.no_cumple | join(", ") if c.no_cumple else "—" }}</td>
+      <td>{% if c.n_alertas > 0 %}<span class="error">{{ c.n_alertas }}</span>{% endif %}</td>
+      <td>{{ c.decision or "sin revisar" }}</td>
+      {% elif c.estado == "sin_texto" %}
+      <td>—</td><td>—</td><td>—</td><td><span class="error">PDF sin texto</span></td><td>—</td>
+      {% elif c.estado == "evaluando" %}
+      <td>—</td><td>—</td><td>—</td><td>evaluando…</td><td>—</td>
+      {% else %}
+      <td>—</td><td>—</td><td>—</td><td>pendiente</td><td>—</td>
+      {% endif %}
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<div class="nota">Ranking: primero los que avanzan, puntaje de mayor a menor</div>
+<script>
+(function () {
+  var ids = {{ rk.pendientes_ids | tojson }};
+  var boton = document.getElementById("evaluar");
+  var prog = document.getElementById("progreso");
+  var errores = document.getElementById("errores");
+  function error(texto) {
+    var li = document.createElement("li");
+    li.className = "error";
+    li.textContent = "✖ " + texto;
+    errores.appendChild(li);
+  }
+  boton.addEventListener("click", async function () {
+    boton.disabled = true;
+    for (var i = 0; i < ids.length; i++) {
+      prog.textContent = "Evaluando " + (i + 1) + " de " + ids.length + "…";
+      try {
+        var token = document.querySelector('meta[name="csrf-token"]').content;
+        var r = await fetch("/evaluar/" + ids[i], {
+          method: "POST", headers: { "X-Requested-With": "fetch", "X-CSRF-Token": token }
+        });
+        if (r.status === 403) {
+          error("sesión vencida, recarga la página");
+          boton.disabled = false;
+          prog.textContent = "";
+          return;
+        }
+        var tipo = r.headers.get("content-type") || "";
+        if (tipo.indexOf("application/json") === -1) {
+          error("sesión vencida, vuelva a iniciar sesión");
+          window.location.href = "/login";
+          return;
+        }
+        var j = await r.json();
+        if (!j.ok) error("Candidato " + ids[i] + ": " + (j.error || "error"));
+      } catch (e) {
+        error("Candidato " + ids[i] + ": error de red");
+      }
+    }
+    if (errores.children.length) {
+      prog.textContent = "Terminado con errores (recargue la página para ver el ranking).";
+      boton.disabled = false;
+      return;
+    }
+    prog.textContent = "Listo, actualizando…";
+    window.location.reload();
+  });
+})();
+</script>
+{% else %}
+<p>Aún no hay hojas de vida cargadas para esta vacante.</p>
+{% endif %}
+{% else %}
+<p>No hay vacantes cargadas.</p>
+{% endif %}
+{% endblock %}

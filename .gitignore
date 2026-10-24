@@ -1,0 +1,21 @@
+# Secretos
+.env
+.env.*
+!.env.example
+
+# Entornos y cachés
+.venv
+__pycache__/
+.pytest_cache/
+instance/
+*.db
+.vercel
+
+# Local de Claude Code
+.claude/settings.local.json
+
+# Datos personales: las hojas de vida nunca se publican
+insumos/hojas_de_vida/
+
+# Documento personal
+resumen_para_claude_chat.md

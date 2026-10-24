@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block titulo %}{{ candidato.nombre or candidato.archivo }}{% endblock %}
+{% block clase_main %}ancho{% endblock %}
+{% block contenido %}
+<p><a href="{{ url_for('main.index', vacante=candidato.vacante_id) }}">← Volver al ranking</a></p>
+<h1>{{ titulo }}</h1>
+<div class="detalle">
+  <section>
+    <h2>PDF original (desde la BD)</h2>
+    <iframe src="{{ url_for('main.pdf', candidato_id=candidato.id) }}" title="PDF original"></iframe>
+  </section>
+  <section>
+    <h2>Evaluación del agente</h2>
+    {% if evaluacion %}
+      {% for a in alertas %}<p class="alertas">⚠ {{ a }}</p>{% endfor %}
+      <table>
+        <thead><tr><th>Crit.</th><th>Descripción</th><th>IA</th><th>Evidencia (cita)</th><th>Verificada</th><th>Cuenta</th></tr></thead>
+        <tbody>
+          {% for c in criterios %}
+          <tr>
+            <td>{{ c.codigo }}</td>
+            <td>{{ c.descripcion }}</td>
+            <td>{% if c.cumple_ia %}<span class="ok">✓</span>{% else %}<span class="error">✗</span>{% endif %}</td>
+            <td>{% if c.evidencia %}“{{ c.evidencia }}”{% else %}—{% endif %}</td>
+            <td>{% if c.verificada %}<span class="ok"><strong>sí</strong></span>{% else %}<span class="error">no</span>{% endif %}</td>
+            <td>{% if c.cuenta %}<span class="ok"><strong>sí</strong></span>{% else %}no{% endif %}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% if evaluacion.resumen %}<p>{{ evaluacion.resumen }}</p>{% endif %}
+      <p class="meta">Modelo {{ evaluacion.modelo or "—" }} · {{ evaluacion.tokens_entrada if evaluacion.tokens_entrada is not none else "—" }} tokens de entrada · {{ evaluacion.tokens_salida if evaluacion.tokens_salida is not none else "—" }} tokens de salida · {{ ("%.1f"|format(evaluacion.duracion_s)) if evaluacion.duracion_s is not none else "—" }} s</p>
+
+      <h2>Decisión de la analista</h2>
+      {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+      <form method="post" action="{{ url_for('main.decision', candidato_id=candidato.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        {% set actual = decision_previa if decision_previa is defined else (evaluacion.decision if evaluacion.decision in ("entrevistar", "descartar") else "") %}
+        <div class="opciones">
+          <label><input type="radio" name="decision" value="entrevistar" {{ "checked" if actual == "entrevistar" }}> Entrevistar</label>
+          <label><input type="radio" name="decision" value="descartar" {{ "checked" if actual == "descartar" }}> Descartar</label>
+        </div>
+        <textarea name="comentario" maxlength="2000" placeholder="Comentario (obligatorio)" required>{{ comentario_previo if comentario_previo is defined else (evaluacion.comentario or "") }}</textarea>
+        <button type="submit" class="btn">Guardar decisión</button>
+      </form>
+    {% elif candidato.estado == "sin_texto" %}
+      <p class="error">PDF sin texto: no se envió a la IA. Revise el documento manualmente.</p>
+    {% else %}
+      <p>Pendiente de evaluar. Vuelva al inicio y use «Evaluar pendientes».</p>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

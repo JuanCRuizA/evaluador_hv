@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block titulo %}Cargar{% endblock %}
+{% block contenido %}
+<h1>Cargar hojas de vida</h1>
+{% if vacante %}
+<form id="form" onsubmit="return false">
+  <label for="vacante">Vacante:</label>
+  <select id="vacante" name="vacante">
+    {% for v in vacantes %}
+    <option value="{{ v.id }}" {{ "selected" if v.id == vacante.id }}>{{ v.cargo }} ({{ v.codigo }})</option>
+    {% endfor %}
+  </select>
+  <p></p>
+  <label id="zona" class="zona" for="archivos">
+    Arrastre aquí los PDF<br>o haga clic para elegir
+    <small>(varios a la vez · solo .pdf · máx. 4 MB)</small>
+  </label>
+  <input id="archivos" type="file" accept=".pdf" multiple hidden>
+  <p id="elegidos"></p>
+  <button id="enviar" type="button" class="btn">Cargar</button>
+</form>
+<h3>Resultado</h3>
+<ul id="resultado" class="resultado"></ul>
+<p id="fin" hidden><a class="btn" id="volver" href="/">Volver al inicio</a></p>
+<p><small>El PDF se guarda dentro de la base de datos.</small></p>
+<script>
+(function () {
+  var entrada = document.getElementById("archivos");
+  var zona = document.getElementById("zona");
+  var lista = document.getElementById("resultado");
+  var boton = document.getElementById("enviar");
+  var selector = document.getElementById("vacante");
+  var archivos = [];
+
+  function elegir(fs) {
+    archivos = Array.prototype.slice.call(fs);
+    document.getElementById("elegidos").textContent = archivos.length + " archivo(s) seleccionado(s)";
+  }
+  entrada.addEventListener("change", function () { elegir(entrada.files); });
+  ["dragover", "dragenter"].forEach(function (e) {
+    zona.addEventListener(e, function (ev) { ev.preventDefault(); zona.classList.add("sobre"); });
+  });
+  ["dragleave", "drop"].forEach(function (e) {
+    zona.addEventListener(e, function () { zona.classList.remove("sobre"); });
+  });
+  zona.addEventListener("drop", function (ev) { ev.preventDefault(); elegir(ev.dataTransfer.files); });
+
+  function linea(texto, ok) {
+    var li = document.createElement("li");
+    li.textContent = (ok ? "✔ " : "✖ ") + texto;
+    li.className = ok ? "ok" : "error";
+    lista.appendChild(li);
+  }
+
+  async function enviarUno(archivo) {
+    var datos = new FormData();
+    datos.append("vacante", selector.value);
+    datos.append("archivo", archivo);
+    try {
+      var token = document.querySelector('meta[name="csrf-token"]').content;
+      var r = await fetch("/cargar", { method: "POST", body: datos,
+        headers: { "X-Requested-With": "fetch", "X-CSRF-Token": token } });
+      if (r.status === 403) {
+        linea(archivo.name + ": sesión vencida, recarga la página", false);
+        return "sesion";
+      }
+      var tipo = r.headers.get("content-type") || "";
+      if (tipo.indexOf("application/json") === -1) {
+        linea(archivo.name + ": sesión vencida, vuelva a iniciar sesión", false);
+        return "sesion";
+      }
+      var j = await r.json();
+      linea(archivo.name + (j.ok ? ": guardada" : ": " + j.motivo), j.ok);
+      return j.ok ? "ok" : "fallo";
+    } catch (e) {
+      linea(archivo.name + ": error de red", false);
+      return "fallo";
+    }
+  }
+
+  boton.addEventListener("click", async function () {
+    if (!archivos.length) { linea("Elija al menos un PDF", false); return; }
+    boton.disabled = true;
+    lista.innerHTML = "";
+    var sesion = false;
+    for (var i = 0; i < archivos.length; i++) {
+      var res = await enviarUno(archivos[i]);
+      if (res === "sesion") { sesion = true; break; }
+    }
+    document.getElementById("volver").href = sesion ? "/login" : "/?vacante=" + selector.value;
+    document.getElementById("fin").hidden = false;
+    boton.disabled = false;
+    archivos = [];
+    entrada.value = "";
+  });
+})();
+</script>
+{% else %}
+<p>No hay vacantes cargadas.</p>
+{% endif %}
+{% endblock %}

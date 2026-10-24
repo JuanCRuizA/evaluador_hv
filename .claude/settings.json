@@ -1,0 +1,6 @@
+{
+  "permissions": {
+    "allow": ["Bash(docker compose:*)", "Bash(docker version:*)", "Bash(git status:*)"],
+    "deny": ["Read(./.env)"]
+  }
+}
