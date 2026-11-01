@@ -24,7 +24,7 @@ SECRETO = "SECRETO"
 MSG_NO_EXISTE = ("El modelo de IA configurado no existe o ya no está disponible "
                  "(revise OPENROUTER_MODEL)")
 MSG_400 = "La IA rechazó la petición (400); revise la configuración del modelo"
-MSG_TURNOS = "La IA superó el número máximo de turnos (MAX_TURNOS_AGENTE)"
+MSG_TURNOS = "La IA superó el número máximo de turnos (MAX_TURNOS_AGENTE); intente de nuevo"
 MSG_INTERPRETAR = "La IA devolvió una respuesta que no se pudo interpretar; intente de nuevo"
 MSG_CONEXION = "No se pudo conectar con la IA; revise la conexión"
 MSG_5XX = "El servicio de IA no está disponible en este momento; intente más tarde"

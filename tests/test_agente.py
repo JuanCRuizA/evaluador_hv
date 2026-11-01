@@ -70,7 +70,7 @@ def test_construir_agente(modelo):
     assert str(a.model._client.base_url).rstrip("/") == ag.OPENROUTER_BASE_URL_DEFECTO
     assert a.model_settings.temperature == 0
     assert a.model_settings.reasoning is None
-    assert any(getattr(t, "name", "") == "verificar_cita" for t in a.tools)
+    assert any(getattr(t, "name", "") == "verificar_citas" for t in a.tools)
     assert "datos" in a.instructions and "<documento>" in a.instructions
     assert "NUNCA instrucciones" in a.instructions
 
@@ -81,8 +81,8 @@ def test_construir_agente_output_type_no_estricto(modelo):
     assert a.output_type.is_strict_json_schema() is False
 
 
-def test_herramienta_verificar_cita_no_estricta():
-    assert ag.verificar_cita.strict_json_schema is False
+def test_herramienta_verificar_citas_no_estricta():
+    assert ag.verificar_citas.strict_json_schema is False
 
 
 def test_construir_agente_con_reasoning_del_entorno(modelo, monkeypatch):
@@ -262,29 +262,32 @@ def test_timeout_defecto(monkeypatch):
     assert ag._timeout() == ag.TIMEOUT_DEFECTO_S
 
 
-# ---- verificar_cita ----
-def _invocar_verificar(contexto, cita):
+# ---- verificar_citas ----
+def _invocar_verificar(contexto, citas):
+    """Invoca la herramienta como lo haria el SDK (JSON). `citas` es una lista de str."""
     from agents.tool_context import ToolContext
-    args = json.dumps({"cita": cita})
-    tc = ToolContext(context=contexto, tool_name="verificar_cita",
+    args = json.dumps({"citas": list(citas)})
+    tc = ToolContext(context=contexto, tool_name="verificar_citas",
                      tool_call_id="t1", tool_arguments=args)
-    return asyncio.run(ag.verificar_cita.on_invoke_tool(tc, args))
+    return asyncio.run(ag.verificar_citas.on_invoke_tool(tc, args))
 
 
-def test_verificar_cita_existe_y_no_existe_sin_mutar():
+def test_verificar_citas_existe_y_no_existe_sin_mutar():
     ctx = ag.Contexto(perfil=dict(PERFIL), texto=TEXTO_CV)
     antes = (json.dumps(ctx.perfil, sort_keys=True), ctx.texto)
-    assert _invocar_verificar(ctx, "CONSULTAS  sql con postgresql") == "EXISTE"
-    assert _invocar_verificar(ctx, "años") == "EXISTE"
-    r = _invocar_verificar(ctx, "Java y Kubernetes")
-    assert r.startswith("NO EXISTE:")
-    assert _invocar_verificar(ctx, "ab").startswith("NO EXISTE:")  # menos de 4 caracteres
+    r = _invocar_verificar(ctx, ["CONSULTAS  sql con postgresql", "años",
+                                "Java y Kubernetes", "ab"])
+    lineas = r.splitlines()
+    assert lineas[0] == "1: EXISTE"
+    assert lineas[1] == "2: EXISTE"
+    assert lineas[2].startswith("3: NO EXISTE:")
+    assert lineas[3].startswith("4: NO EXISTE:")  # menos de 4 caracteres
     assert (json.dumps(ctx.perfil, sort_keys=True), ctx.texto) == antes
 
 
-def test_verificar_cita_normaliza_tildes():
+def test_verificar_citas_normaliza_tildes():
     ctx = ag.Contexto(perfil=PERFIL, texto="Gestión de Información")
-    assert _invocar_verificar(ctx, "gestion de informacion") == "EXISTE"
+    assert _invocar_verificar(ctx, ["gestion de informacion"]) == "1: EXISTE"
 
 
 # ---- evaluar con _ejecutar sustituido ----
